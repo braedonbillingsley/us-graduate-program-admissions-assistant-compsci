@@ -1,0 +1,70 @@
+.gradient-custom {
+    background: linear-gradient(to right, #3494e6, #ec6ead);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    margin-top: 2rem;
+    padding: 2rem;
+}
+
+.results-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    margin-top: 2rem;
+    transition: all 0.3s ease;
+}
+
+.program-card {
+    border-left: 4px solid #3494e6;
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.program-card:hover {
+    transform: translateX(5px);
+}
+
+.loading-spinner {
+    display: none;
+    margin: 20px auto;
+}
+
+.match-score {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #3494e6;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9em;
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #3494e6;
+}
+
+.deadline-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    background-color: #ec6ead;
+    color: white;
+    border-radius: 12px;
+    font-size: 0.8em;
+}

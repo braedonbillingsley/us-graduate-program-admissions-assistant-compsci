@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graduate School Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="gradient-custom min-vh-100">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <h1 class="text-center text-white mb-4">CS Graduate School Assistant</h1>
+                
+                <div class="card form-card">
+                    <form id="profileForm">
+                        <div class="mb-4">
+                            <label class="form-label">Research Interests</label>
+                            <textarea 
+                                class="form-control" 
+                                name="interests" 
+                                rows="3"
+                                required
+                                placeholder="e.g., Machine Learning, Computer Vision, Distributed Systems"
+                            ></textarea>
+                            <div class="form-text">Separate multiple interests with commas</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">GPA</label>
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                min="0" 
+                                max="4.0" 
+                                class="form-control" 
+                                name="gpa" 
+                                required
+                                placeholder="4.0"
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Research Experience</label>
+                            <textarea 
+                                class="form-control" 
+                                name="researchExp" 
+                                rows="4"
+                                required
+                                placeholder="Describe your research experience, publications, projects..."
+                            ></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            Find Matching Programs
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="text-center">
+                    <div id="loadingSpinner" class="loading-spinner">
+                        <div class="spinner-border text-light" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="results" style="display: none;" class="results-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title mb-4">Matching Programs</h2>
+                            <div id="matchesContainer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
