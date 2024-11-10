@@ -8,8 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading(true);
         
         try {
+            // Convert FormData to an object and properly format the interests
             const formData = new FormData(e.target);
-            const response = await submitProfile(formData);
+            const formObject = Object.fromEntries(formData);
+            
+            // Split interests into an array if it's a comma-separated string
+            if (formObject.interests) {
+                formObject.interests = formObject.interests
+                    .split(',')
+                    .map(interest => interest.trim())
+                    .filter(Boolean);
+            }
+
+            const response = await submitProfile(formObject);
             displayResults(response.matches);
         } catch (error) {
             showError(error);
@@ -19,17 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-async function submitProfile(formData) {
+async function submitProfile(data) {
     const response = await fetch('/submit-profile', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(Object.fromEntries(formData))
+        body: JSON.stringify(data)
     });
     
     if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Network response was not ok');
     }
     
     return response.json();
@@ -42,7 +54,7 @@ function displayResults(matches) {
     matchesContainer.innerHTML = matches.map(match => `
         <div class="card program-card">
             <div class="card-body">
-                <span class="match-score">${match.matchScore || '90'}% Match</span>
+                <span class="match-score">${match.matchScore}% Match</span>
                 <h5 class="card-title">${match.university}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">${match.program}</h6>
                 <p class="card-text">${match.match}</p>
@@ -64,5 +76,5 @@ function showLoading(show) {
 
 function showError(error) {
     console.error('Error:', error);
-    alert('An error occurred while processing your request. Please try again.');
+    alert(`Error: ${error.message}. Please check your input and try again.`);
 }
