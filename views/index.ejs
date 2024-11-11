@@ -12,60 +12,62 @@
                 <h1 class="text-center text-white mb-4">CS Graduate School Assistant</h1>
                 
                 <div class="card form-card">
-                    <form id="profileForm">
-                        <div class="mb-4">
-                            <label class="form-label">Research Interests</label>
-                            <textarea 
-                                class="form-control" 
-                                name="interests" 
-                                rows="3"
-                                required
-                                placeholder="e.g., Machine Learning, Computer Vision, Distributed Systems"
-                            ></textarea>
-                            <div class="form-text">Separate multiple interests with commas</div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label">GPA</label>
-                            <input 
-                                type="number" 
-                                step="0.01" 
-                                min="0" 
-                                max="4.0" 
-                                class="form-control" 
-                                name="gpa" 
-                                required
-                                placeholder="4.0"
-                            >
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label">Research Experience</label>
-                            <textarea 
-                                class="form-control" 
-                                name="researchExp" 
-                                rows="4"
-                                required
-                                placeholder="Describe your research experience, publications, projects... (minimum 50 characters)"
-                                minlength="50"
-                            ></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100">
-                            Find Matching Programs
-                        </button>
-                    </form>
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="mb-4">
+                                <label class="form-label">Research Interests</label>
+                                <textarea 
+                                    class="form-control" 
+                                    name="interests" 
+                                    rows="3"
+                                    required
+                                    placeholder="e.g., Machine Learning, Computer Vision, Distributed Systems"
+                                ></textarea>
+                                <div class="form-text">Separate multiple interests with commas</div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">GPA</label>
+                                <input 
+                                    type="number" 
+                                    step="0.01" 
+                                    min="0" 
+                                    max="4.0" 
+                                    class="form-control" 
+                                    name="gpa" 
+                                    required
+                                    placeholder="4.0"
+                                >
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Research Experience</label>
+                                <textarea 
+                                    class="form-control" 
+                                    name="researchExp" 
+                                    rows="4"
+                                    required
+                                    placeholder="Describe your research experience, publications, projects... (minimum 50 characters)"
+                                    minlength="50"
+                                ></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                Find Matching Programs
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 
-                <div class="text-center">
-                    <div id="loadingSpinner" class="loading-spinner">
+                <div class="text-center mt-4">
+                    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
                         <div class="spinner-border text-light" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
                 </div>
                 
-                <div id="results" style="display: none;" class="results-card">
+                <div id="results" style="display: none;" class="mt-4">
                     <div class="card">
                         <div class="card-body">
                             <h2 class="card-title mb-4">Matching Programs</h2>

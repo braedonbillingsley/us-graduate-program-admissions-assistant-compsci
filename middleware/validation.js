@@ -1,4 +1,6 @@
-const { body, validationResult } = require('express-validator');
+import { body, param, validationResult } from 'express-validator';
+import { ValidationError } from '../utils/errors.js';
+import mongoose from 'mongoose';
 
 const profileValidationRules = [
     body('interests')
@@ -26,21 +28,24 @@ const profileValidationRules = [
         .withMessage('Research experience must be at least 50 characters long')
 ];
 
-const validateProfile = async (req, res, next) => {
-    try {
-        // Log incoming request for debugging
-        console.log('Incoming request body:', req.body);
+export const validateMongoId = (paramName = 'id') => [
+    param(paramName)
+        .custom((value) => {
+            if (!mongoose.Types.ObjectId.isValid(value)) {
+                throw new Error('Invalid MongoDB ObjectId');
+            }
+            return true;
+        })
+];
 
+export const validateProfile = async (req, res, next) => {
+    try {
         // Run validation
         await Promise.all(profileValidationRules.map(validation => validation.run(req)));
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Validation failed',
-                details: errors.array()
-            });
+            throw new ValidationError(errors.array());
         }
 
         // Ensure interests is an array
@@ -52,15 +57,12 @@ const validateProfile = async (req, res, next) => {
         }
 
         // Convert GPA to float
-        req.body.gpa = parseFloat(req.body.gpa);
+        if (req.body.gpa) {
+            req.body.gpa = parseFloat(req.body.gpa);
+        }
 
         next();
     } catch (error) {
-        console.error('Validation error:', error);
         next(error);
     }
-};
-
-module.exports = {
-    validateProfile
 };

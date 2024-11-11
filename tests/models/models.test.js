@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 import { expect } from 'chai';
-import { connectDB, closeDB } from '../setup.js';
+import { connectDB, closeDB, suppressLogs } from '../test-helper.js';
 import Profile from '../../models/Profile.js';
 import SearchResult from '../../models/SearchResult.js';
 
 describe('Profile Model Tests', function() {
     // Increase timeout for database operations
     this.timeout(10000);
+    suppressLogs();
 
     before(async function() {
         await connectDB();
