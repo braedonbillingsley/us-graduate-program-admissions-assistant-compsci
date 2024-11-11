@@ -16,14 +16,17 @@
                         <form id="profileForm">
                             <div class="mb-4">
                                 <label class="form-label">Research Interests</label>
-                                <textarea 
-                                    class="form-control" 
-                                    name="interests" 
-                                    rows="3"
-                                    required
-                                    placeholder="e.g., Machine Learning, Computer Vision, Distributed Systems"
-                                ></textarea>
-                                <div class="form-text">Separate multiple interests with commas</div>
+                                <div class="interests-input-container">
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="interestInput"
+                                        placeholder="Type and press Enter to add interests"
+                                    >
+                                    <div id="interestTags" class="d-flex flex-wrap gap-2 mt-2"></div>
+                                    <input type="hidden" name="interests" id="interestsHidden">
+                                </div>
+                                <div class="form-text">Press Enter to add multiple interests</div>
                             </div>
                             
                             <div class="mb-4">
@@ -50,28 +53,50 @@
                                     placeholder="Describe your research experience, publications, projects... (minimum 50 characters)"
                                     minlength="50"
                                 ></textarea>
+                                <div class="char-counter form-text text-end">0/50</div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary w-100">
-                                Find Matching Programs
+                            <button type="submit" class="btn btn-primary w-100 position-relative">
+                                <span>Find Matching Programs</span>
+                                <div class="submit-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                    <div class="spinner-border spinner-border-sm text-light" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
                             </button>
                         </form>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-4">
-                    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-                        <div class="spinner-border text-light" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
                     </div>
                 </div>
                 
                 <div id="results" style="display: none;" class="mt-4">
                     <div class="card">
                         <div class="card-body">
-                            <h2 class="card-title mb-4">Matching Programs</h2>
+                            <div class="search-controls mb-4">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <input 
+                                            type="text" 
+                                            id="programSearch" 
+                                            class="form-control" 
+                                            placeholder="Search programs..."
+                                        >
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button 
+                                            id="sortButton" 
+                                            class="btn btn-outline-primary w-100"
+                                        >
+                                            Sort by Match ↓
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div id="matchesContainer"></div>
+                            
+                            <div id="noResults" class="text-center py-4 d-none">
+                                <p class="text-muted mb-0">No matching programs found</p>
+                            </div>
                         </div>
                     </div>
                 </div>
