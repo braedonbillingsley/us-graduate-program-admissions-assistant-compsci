@@ -8,20 +8,16 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading(true);
         
         try {
-            // Convert FormData to an object and properly format the interests
+            // Convert form data to proper format
             const formData = new FormData(e.target);
-            const formObject = Object.fromEntries(formData);
-            
-            // Split interests into an array if it's a comma-separated string
-            if (formObject.interests) {
-                formObject.interests = formObject.interests
-                    .split(',')
-                    .map(interest => interest.trim())
-                    .filter(Boolean);
-            }
+            const data = {
+                interests: formData.get('interests').split(',').map(i => i.trim()).filter(i => i),
+                gpa: parseFloat(formData.get('gpa')),
+                researchExp: formData.get('researchExp')
+            };
 
-            const response = await submitProfile(formObject);
-            displayResults(response.matches);
+            const response = await submitProfile(data);
+            displayResults(response.data.matches);
         } catch (error) {
             showError(error);
         } finally {
@@ -31,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function submitProfile(data) {
-    const response = await fetch('/submit-profile', {
+    const response = await fetch('/api/profiles', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -41,7 +37,7 @@ async function submitProfile(data) {
     
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Network response was not ok');
+        throw new Error(errorData.error?.message || 'Something went wrong');
     }
     
     return response.json();
@@ -76,5 +72,5 @@ function showLoading(show) {
 
 function showError(error) {
     console.error('Error:', error);
-    alert(`Error: ${error.message}. Please check your input and try again.`);
+    alert(error.message || 'An error occurred. Please try again.');
 }
