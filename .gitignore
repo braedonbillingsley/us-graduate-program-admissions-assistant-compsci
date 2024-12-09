@@ -14,3 +14,6 @@ venv/
 chroma_db
 grad_admissions.db
 __pycache__/
+node_modules/
+.env
+package-lock.json
