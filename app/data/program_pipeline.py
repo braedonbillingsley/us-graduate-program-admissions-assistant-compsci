@@ -11,6 +11,7 @@ class ProgramDataPipeline:
         self.vector_store = vector_store
         self.api_endpoint = "https://api.data.gov/ed/collegescorecard/v1/schools"
         self.api_key = settings.DATA_GOV_API_KEY
+        self.processed_ids = set()
         
         # Define CS-related CIP codes
         self.cs_cip_codes = {
@@ -159,6 +160,9 @@ class ProgramDataPipeline:
     async def update_program_database(self):
         """Update program database with latest data"""
         try:
+            # Clear the processed IDs set at the start of each update
+            self.processed_ids.clear()
+            
             params = {
                 "fields": ",".join([
                     "id",
@@ -170,10 +174,9 @@ class ProgramDataPipeline:
                     "latest.admissions.admission_rate.overall",
                     "latest.student.size"
                 ]),
-                "per_page": 25,  # Limit to 25 schools
-                "sort": "latest.student.size:desc",  # Sort by size to get major universities
+                "per_page": 25,
+                "sort": "latest.student.size:desc",
                 "school.operating": 1,
-                # Schools that offer graduate programs
                 "latest.programs.cip_4_digit.credential.level__range": "5..7"
             }
             
@@ -182,18 +185,37 @@ class ProgramDataPipeline:
                 print("No data received from API")
                 return
             
-            total_count = 0
+            new_count = 0
+            update_count = 0
+            
             for school_data in raw_data:
                 programs = self.transform_program_data(school_data)
                 for program in programs:
                     try:
-                        await self.vector_store.add_program(program)
-                        total_count += 1
+                        program_id = program["id"]
+                        
+                        # Skip if we've already processed this ID in current update
+                        if program_id in self.processed_ids:
+                            print(f"Skipping duplicate program ID: {program_id}")
+                            continue
+                        
+                        # Use add_or_update_program instead of add_program
+                        is_new = await self.vector_store.add_or_update_program(program)
+                        if is_new:
+                            new_count += 1
+                        else:
+                            update_count += 1
+                            
+                        self.processed_ids.add(program_id)
+                        
                     except Exception as e:
-                        print(f"Error adding program to vector store: {str(e)}")
+                        print(f"Error processing program: {str(e)}")
                         continue
             
-            print(f"✅ Successfully updated program database with {total_count} CS graduate programs")
+            print(f"✅ Database update complete:")
+            print(f"   - Added {new_count} new programs")
+            print(f"   - Updated {update_count} existing programs")
+            print(f"   - Total unique programs: {len(self.processed_ids)}")
             
         except Exception as e:
             print(f"❌ Error updating program database: {str(e)}")

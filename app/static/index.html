@@ -10,6 +10,7 @@
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-center mb-8">Graduate Program Admissions Assistant</h1>
         
+        <!-- Remove the form action and method -->
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
             <form id="preferencesForm" class="space-y-6">
                 <!-- Academic Background -->
@@ -27,7 +28,7 @@
                     </div>
                 </div>
 
-                <!-- Interests and Research Areas -->
+                <!-- Research Areas -->
                 <div>
                     <h2 class="text-xl font-semibold mb-4">Research Interests</h2>
                     <div class="space-y-4">
@@ -51,7 +52,7 @@
                     </div>
                 </div>
 
-                <!-- Preferences -->
+                <!-- Program Preferences -->
                 <div>
                     <h2 class="text-xl font-semibold mb-4">Program Preferences</h2>
                     <div class="space-y-4">
@@ -60,7 +61,6 @@
                             <select id="degreeType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
                                 <option value="Masters">Master's</option>
                                 <option value="PhD">PhD</option>
-                                <option value="Both">Both</option>
                             </select>
                         </div>
 
@@ -88,7 +88,8 @@
                     </div>
                 </div>
 
-                <button type="submit" 
+                <button type="button" 
+                    onclick="handleSubmit()"
                     class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
                     Get Recommendations
                 </button>
@@ -105,87 +106,99 @@
     </div>
 
     <script>
-function showRecommendations(data) {
-    const panel = document.getElementById('recommendationsPanel');
-    const list = document.getElementById('recommendationsList');
-    
-    if (!data.recommendations || data.recommendations.length === 0) {
-        list.innerHTML = `
-            <div class="bg-yellow-50 p-4 rounded-lg">
-                <p class="text-yellow-700">No recommendations available at this time.</p>
-            </div>
-        `;
-        panel.classList.remove('hidden');
-        return;
-    }
+        async function handleSubmit() {
+            const submitButton = document.querySelector('button[type="button"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Getting Recommendations...';
+            submitButton.disabled = true;
 
-    // Format AI summary
-    const summaryHtml = `
-        <div class="bg-blue-50 p-4 rounded-lg mb-6">
-            <h3 class="font-bold text-lg mb-2">Analysis Summary</h3>
-            <div class="whitespace-pre-line">${data.summary}</div>
-        </div>
-    `;
+            try {
+                const formData = {
+                    background: document.getElementById('background').value,
+                    interests: [document.getElementById('interests').value],
+                    locations: Array.from(document.getElementById('locations').selectedOptions).map(opt => opt.value),
+                    degree_type: document.getElementById('degreeType').value,
+                    research_areas: Array.from(document.getElementById('researchAreas').selectedOptions).map(opt => opt.value)
+                };
 
-    // Format program recommendations
-    const recommendationsHtml = data.recommendations.map((rec, index) => `
-        <div class="border rounded-lg p-4 mb-4 hover:shadow-lg transition-shadow">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="font-bold text-lg">${rec.university}</h3>
-                    <p class="text-gray-600">${rec.program}</p>
-                    <p class="text-sm text-gray-500">${rec.location}</p>
-                </div>
-                <div class="text-right">
-                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">
-                        ${rec.match_score} Match
-                    </span>
-                </div>
-            </div>
+                console.log('Sending data:', formData);
+
+                const response = await fetch('/api/chat/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Server error');
+                }
+
+                const data = await response.json();
+                console.log('Received response:', data);
+                showRecommendations(data);
+            } catch (error) {
+                console.error('Error details:', error);
+                const errorHtml = `
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 my-4">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    ${error.message}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('recommendationsList').innerHTML = errorHtml;
+                document.getElementById('recommendationsPanel').classList.remove('hidden');
+            } finally {
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
+            }
+        }
+
+        function showRecommendations(data) {
+            const panel = document.getElementById('recommendationsPanel');
+            const list = document.getElementById('recommendationsList');
             
-            <div class="mt-4">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <h4 class="font-semibold mb-2">Match Scores</h4>
-                        <ul class="text-sm space-y-1">
-                            <li>Academic Fit: ${rec.scores.academic_fit}</li>
-                            <li>Research Fit: ${rec.scores.research_fit}</li>
-                            <li>Location Fit: ${rec.scores.location_fit}</li>
-                            <li>Program Type Fit: ${rec.scores.program_type_fit}</li>
-                        </ul>
+            if (!data.recommendations) {
+                list.innerHTML = `
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <p class="text-yellow-700">No recommendations available at this time.</p>
                     </div>
-                    <div>
-                        <h4 class="font-semibold mb-2">Program Details</h4>
-                        <ul class="text-sm space-y-1">
-                            <li>Degree Type: ${rec.degree_type}</li>
-                            <li>Department: ${rec.department}</li>
-                            <li>Est. Annual Cost: ${rec.estimated_cost}</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="space-y-3">
-                    <div>
-                        <h4 class="font-semibold">Program Strengths</h4>
-                        <ul class="list-disc list-inside text-sm mt-1">
-                            ${rec.strengths.map(s => `<li>${s}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold">Considerations</h4>
-                        <ul class="list-disc list-inside text-sm mt-1">
-                            ${rec.considerations.map(c => `<li>${c}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
+                `;
+                panel.classList.remove('hidden');
+                return;
+            }
 
-    list.innerHTML = summaryHtml + recommendationsHtml;
-    panel.classList.remove('hidden');
-    panel.scrollIntoView({ behavior: 'smooth' });
-}
-</script>
+            // Format AI response
+            const aiResponseHtml = `
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <h3 class="font-bold mb-2">AI Analysis</h3>
+                    <p class="whitespace-pre-line">${data.recommendations}</p>
+                </div>
+            `;
+
+            // Format matching programs
+            const programsHtml = data.matching_programs && data.matching_programs.length > 0 
+                ? data.matching_programs.map(program => `
+                    <div class="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-lg">${program.name || 'Program Name Not Available'}</h3>
+                        <p class="text-gray-600">${program.university || 'University Not Available'}</p>
+                        <p class="text-sm mt-2">${program.department || 'Department Not Available'}</p>
+                        ${program.description ? `<p class="mt-2 text-gray-700">${program.description}</p>` : ''}
+                    </div>
+                `).join('')
+                : '<p class="text-gray-600">No matching programs found.</p>';
+
+            list.innerHTML = aiResponseHtml + programsHtml;
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
